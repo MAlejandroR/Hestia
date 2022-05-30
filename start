@@ -1,0 +1,3 @@
+/home/manuel/start_docker
+npm run watch &
+php artisan serve &
