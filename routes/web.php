@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\ControladorMain;
 
 use App\Http\Controllers\MainController;
+use App\Http\Controllers\ControladorPrueba;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,7 +36,8 @@ Route::get('/prueba1',  [ControladorMain::class, "prueba1"]);
 //        'phpVersion' => PHP_VERSION,
 //    ]);
 //});
-
+Route::get("p1", [ControladorPrueba::class,"p1"])->name("v1");
+Route::get("p2", [ControladorPrueba::class,"p2"])->name("v2");
 Route::get('/p', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),

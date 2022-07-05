@@ -1,5 +1,4 @@
 <template>
-
     <Layout :login=login :user =user>
         <h1>contenido de la página</h1>
     </Layout>

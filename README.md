@@ -23,3 +23,7 @@ El resto de usuarios se  registren en la aplicación, serán dados de alta en el
 ## RF Autentificacion
 Estoy en la fase de registrar. Uso fortify, y no me carga la view de register
  https://jetstream.laravel.com/2.x/features/registration.html#views-pages
+
+Añado en el modelo el campo ***checked*** que al registrar tiene valor false
+(./app/Action/Fortify/CreateNewUser.php)
+ Un usuario checkeado a true va a ser un profesor con email *****@cpilosenlaces.com*****

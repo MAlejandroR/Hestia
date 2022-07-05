@@ -4,6 +4,9 @@
         <a class="h-15v" href="https://cpilosenlaces.com/">
             <img class="max-h-full " src="images/logo.png" alt="logo"/>
         </a>
+      <span v-if="msj">
+        <h1>{{msj}}</h1>
+      </span>
         <span class=" h-15v flex flex-row justify-start">
 
             <span class="bg-white rounded-full">
@@ -11,7 +14,7 @@
                       <img class="max-h-full" src="images/logo_hestia.png" alt="logo hestia"/>
                 </a>
                 </span>
-            <h1 class=" max-h-full text-hestia font-serif text-8xl text-gray-800 ">
+            <h1 class=" max-h-full text-hestia font-serif text-6xl text-gray-800 ">
                   Gestión Hestia
             </h1>
          </span>
@@ -20,26 +23,26 @@
 
         </span>
         <span v-else>
-            <form action="">
-                
-                <input type="text" name="email" placeholder="email" id="emall">
-                <input type="text" name="pass" placeholder="password" id="pass">
-                <br />
-                <input type="submit" value="login">
-                <Link href="register'">Registrarse</Link>
+            <form class="p-4" action="">
 
-                <a href=""></a><input type="submit" value="register">
+                <input size="10" type="text" name="email" placeholder="email" id="emall">
+                <input size="10" type="text" name="pass" placeholder="password" id="pass">
+                <br />
+                <Link class="boton" method ="get" :href="route('login')"  >Login</Link>
+                <Link class="boton" method ="get" :href="route('register')"  >Registrarse</Link>
+
+
             </form>
             </span>
 
 
     </header>
-    <nav class="flex flex-col justify-start items-center p-8 h-10v">
+    <nav class="flex flex-row justify-start items-center  h-10v">
         <menu>
-            <a href="#">Administrar</a>
-            <a href="#">Crearme Usuario</a>
-            <a href="#">Doc Hestia</a>
-            <a href="#">Wiki sobre hestia</a>
+            <a class="boton" href="#">Administrar</a>
+            <a class="boton" href="#">Crearme Usuario</a>
+            <a class="boton" href="#">Doc Hestia</a>
+            <a class="boton" href="#">Wiki sobre hestia</a>
         </menu>
 
     </nav>
@@ -61,7 +64,10 @@ export default {
     name: "Layout",
     components: {
         menu, Link
-    }
+    },
+  props:{
+      msj:String
+  }
 }
 </script>
 

@@ -30,11 +30,11 @@ class JetstreamServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        Fortify::registerView(function () {
+  /*      Fortify::registerView(function () {
             return Inertia::render('Auth/Register');
         });
 
-
+*/
 
         $this->configurePermissions();
 
