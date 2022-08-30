@@ -39,8 +39,12 @@
     </header>
     <nav class="flex flex-row justify-start items-center  h-10v">
         <menu>
-            <a class="boton" href="#">Administrar</a>
-            <a class="boton" href="#">Crearme Usuario</a>
+          <div v-if="$page.props.auth.roles[0]==='admin' " >
+            <a class="boton" href="#">AAAA
+              Administrar</a>
+          </div>
+          hola
+            <a class="boton" href="#">Crearmeeeee Usuario</a>
             <a class="boton" href="#">Doc Hestia</a>
             <a class="boton" href="#">Wiki sobre hestia</a>
         </menu>
