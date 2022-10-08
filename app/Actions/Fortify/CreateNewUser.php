@@ -29,9 +29,9 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
         $dominio = Str::of($input['email'])->afterLast("@");
-        $tipo="alumno";
+        $rol="alumno";
         if ($dominio =="cpilosenlaces.com")
-            $tipo ="profesor";
+            $rol ="profesor";
 
 
         
@@ -39,9 +39,8 @@ class CreateNewUser implements CreatesNewUsers
         return User::create([
             'name' => $input['name'],
             'email' => $input['email'],
-            'checked'=>false,
             'password' => Hash::make($input['password']),
-            'tipo'=>$tipo,
-        ]);
+        ])->assignRole($rol);
+
     }
 }

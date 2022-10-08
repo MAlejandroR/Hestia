@@ -151,7 +151,6 @@ class Fortify
      */
     public static function registerView($view)
     {
-
         app()->singleton(RegisterViewResponse::class, function () use ($view) {
             return new SimpleViewResponse($view);
         });

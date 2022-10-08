@@ -8,6 +8,7 @@ use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use App\Http\Responses\LoginResponse as LoginResponseContract;;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Hash;
@@ -25,7 +26,10 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind(
+            LoginResponseContract::class, // Contract is required in order to make this step work.
+            LoginResponse::class,
+        );
     }
 
     /**
@@ -57,7 +61,7 @@ class FortifyServiceProvider extends ServiceProvider
         //Al hacer un logín verfico el campo checked
         Fortify::authenticateUsing(function (Request $request) {
             $user = User::where('email', $request->email)->first();
-            $checked = $user->checked;
+
 //            if (!$checked) {
 //                $msj = "Este usuario no ha sido validado";
 //                return Inertia::render("Inicio",['msj'=>$msj]);
