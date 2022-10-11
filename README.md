@@ -52,4 +52,24 @@ Lo he gestionado de otra forma, pendiente documentar la parte de gestión de usu
   
 # Pendiente
 
- * Pasar de webpack a vite
+ * Pasar de webpack a vite (OK) 
+  ```bash
+ npm install @vitejs/plugin-vue -D 
+  ``` 
+>Agrego en fichero de configuración *****vite.config.js*****
+```bash
+#....
+import vue from '@vitejs/plugin-vue';
+
+ plugins: [
+     #....
+        vue(),
+    ],
+
+```
+
+ * Retomo el proyecto el 8/10/22
+ * * No me carga el css de taildwind. Poblema solucionado, no estaba el fichero *****postcss.client.js***** que he generado con el comando ç
+```bash
+npx tailwindcss init -p
+```
