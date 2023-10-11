@@ -11,6 +11,8 @@
 > Primero actualizo inertia a la nueva versión
 * https://inertiajs.com/upgrade-guide
 * https://inertiajs.com/client-side-setup#initialize-the-inertia-app
+>  No ha terminado bien la actualización fallan paquetes de importanción
+
 
 ## Hestia VP
 
