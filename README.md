@@ -6,6 +6,7 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
+
 ## Retorno 11/10/23
 > Primero actualizo inertia a la nueva versión
 * https://inertiajs.com/upgrade-guide
