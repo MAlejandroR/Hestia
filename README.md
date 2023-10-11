@@ -6,6 +6,10 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
+## Retorno 11/10/23
+> Primero actualizo inertia a la nueva versión
+* https://inertiajs.com/upgrade-guide
+* https://inertiajs.com/client-side-setup#initialize-the-inertia-app
 
 ## Hestia VP
 
@@ -20,13 +24,16 @@ Los profesores se han de registrar con la cuenta del centro, de esta forma se cr
 
 El resto de usuarios se  registren en la aplicación, serán dados de alta en el sistema hestia, cuando el administrador de su validación. El administrador será avisado por correo cuando haya alumnos pendientes de dar de alta en el sistema.
 ## Requisitos del proyecto
-*****RF1*****  Al acceder aparece una pantalla general con opciones básicas:
+### ___RF1___
+>Al acceder aparece una pantalla general con opciones básicas:
 
 1. Información varia
 2. Login
 3. Registrarse
 
-*****RF2*****Logueado en función del tipo de usuario aparecerán opicones
+
+### *****RF2*****
+> Logueado en función del tipo de usuario aparecerán opicones
 
 1. Usuario Alumno Crear un usuario en vesta
 2. Usuario Profesor
@@ -67,9 +74,8 @@ import vue from '@vitejs/plugin-vue';
     ],
 
 ```
-
  * Retomo el proyecto el 8/10/22
- * * No me carga el css de taildwind. Poblema solucionado, no estaba el fichero *****postcss.client.js***** que he generado con el comando ç
+ * * No me carga el css de taildwind. Poblema solucionado, no estaba el fichero *****postcss.client.js***** que he generado con el comando 
 ```bash
 npx tailwindcss init -p
 ```

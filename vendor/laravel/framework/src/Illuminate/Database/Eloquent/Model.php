@@ -182,6 +182,27 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
     protected static $modelsShouldPreventSilentlyDiscardingAttributes = false;
 
     /**
+     * The callback that is responsible for handling discarded attribute violations.
+     *
+     * @var callable|null
+     */
+    protected static $discardedAttributeViolationCallback;
+
+    /**
+     * Indicates if an exception should be thrown when trying to access a missing attribute on a retrieved model.
+     *
+     * @var bool
+     */
+    protected static $modelsShouldPreventAccessingMissingAttributes = false;
+
+    /**
+     * The callback that is responsible for handling missing attribute violations.
+     *
+     * @var callable|null
+     */
+    protected static $missingAttributeViolationCallback;
+
+    /**
      * Indicates if broadcasting is currently enabled.
      *
      * @var bool
@@ -378,6 +399,19 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
     }
 
     /**
+     * Indicate that models should prevent lazy loading, silently discarding attributes, and accessing missing attributes.
+     *
+     * @param  bool  $shouldBeStrict
+     * @return void
+     */
+    public static function shouldBeStrict(bool $shouldBeStrict = true)
+    {
+        static::preventLazyLoading($shouldBeStrict);
+        static::preventSilentlyDiscardingAttributes($shouldBeStrict);
+        static::preventAccessingMissingAttributes($shouldBeStrict);
+    }
+
+    /**
      * Prevent model relationships from being lazy loaded.
      *
      * @param  bool  $value
@@ -411,6 +445,39 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
     }
 
     /**
+     * Register a callback that is responsible for handling discarded attribute violations.
+     *
+     * @param  callable|null  $callback
+     * @return void
+     */
+    public static function handleDiscardedAttributeViolationUsing(?callable $callback)
+    {
+        static::$discardedAttributeViolationCallback = $callback;
+    }
+
+    /**
+     * Prevent accessing missing attributes on retrieved models.
+     *
+     * @param  bool  $value
+     * @return void
+     */
+    public static function preventAccessingMissingAttributes($value = true)
+    {
+        static::$modelsShouldPreventAccessingMissingAttributes = $value;
+    }
+
+    /**
+     * Register a callback that is responsible for handling lazy loading violations.
+     *
+     * @param  callable|null  $callback
+     * @return void
+     */
+    public static function handleMissingAttributeViolationUsing(?callable $callback)
+    {
+        static::$missingAttributeViolationCallback = $callback;
+    }
+
+    /**
      * Execute a callback without broadcasting any model events for all model types.
      *
      * @param  callable  $callback
@@ -441,16 +508,37 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
     {
         $totallyGuarded = $this->totallyGuarded();
 
-        foreach ($this->fillableFromArray($attributes) as $key => $value) {
+        $fillable = $this->fillableFromArray($attributes);
+
+        foreach ($fillable as $key => $value) {
             // The developers may choose to place some attributes in the "fillable" array
             // which means only those attributes may be set through mass assignment to
             // the model, and all others will just get ignored for security reasons.
             if ($this->isFillable($key)) {
                 $this->setAttribute($key, $value);
             } elseif ($totallyGuarded || static::preventsSilentlyDiscardingAttributes()) {
+                if (isset(static::$discardedAttributeViolationCallback)) {
+                    call_user_func(static::$discardedAttributeViolationCallback, $this, [$key]);
+                } else {
+                    throw new MassAssignmentException(sprintf(
+                        'Add [%s] to fillable property to allow mass assignment on [%s].',
+                        $key, get_class($this)
+                    ));
+                }
+            }
+        }
+
+        if (count($attributes) !== count($fillable) &&
+            static::preventsSilentlyDiscardingAttributes()) {
+            $keys = array_diff(array_keys($attributes), array_keys($fillable));
+
+            if (isset(static::$discardedAttributeViolationCallback)) {
+                call_user_func(static::$discardedAttributeViolationCallback, $this, $keys);
+            } else {
                 throw new MassAssignmentException(sprintf(
-                    'Add [%s] to fillable property to allow mass assignment on [%s].',
-                    $key, get_class($this)
+                    'Add fillable property [%s] to allow mass assignment on [%s].',
+                    implode(', ', $keys),
+                    get_class($this)
                 ));
             }
         }
@@ -983,7 +1071,7 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
         // us to recurse into all of these nested relations for the model instance.
         foreach ($this->relations as $models) {
             $models = $models instanceof Collection
-                        ? $models->all() : [$models];
+                ? $models->all() : [$models];
 
             foreach (array_filter($models) as $model) {
                 if (! $model->push()) {
@@ -1030,7 +1118,7 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
         // clause to only update this model. Otherwise, we'll just insert them.
         if ($this->exists) {
             $saved = $this->isDirty() ?
-                        $this->performUpdate($query) : true;
+                $this->performUpdate($query) : true;
         }
 
         // If the model is brand new, we'll insert it into our database and set the
@@ -1432,8 +1520,8 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
     public function newQueryWithoutScopes()
     {
         return $this->newModelQuery()
-                    ->with($this->with)
-                    ->withCount($this->withCount);
+            ->with($this->with)
+            ->withCount($this->withCount);
     }
 
     /**
@@ -1456,8 +1544,8 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
     public function newQueryForRestoration($ids)
     {
         return is_array($ids)
-                ? $this->newQueryWithoutScopes()->whereIn($this->getQualifiedKeyName(), $ids)
-                : $this->newQueryWithoutScopes()->whereKey($ids);
+            ? $this->newQueryWithoutScopes()->whereIn($this->getQualifiedKeyName(), $ids)
+            : $this->newQueryWithoutScopes()->whereKey($ids);
     }
 
     /**
@@ -1505,7 +1593,7 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
     public function newPivot(self $parent, array $attributes, $table, $exists, $using = null)
     {
         return $using ? $using::fromRawAttributes($parent, $attributes, $table, $exists)
-                      : Pivot::fromAttributes($parent, $attributes, $table, $exists);
+            : Pivot::fromAttributes($parent, $attributes, $table, $exists);
     }
 
     /**
@@ -1583,9 +1671,9 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
         }
 
         return $this->setKeysForSelectQuery($this->newQueryWithoutScopes())
-                        ->useWritePdo()
-                        ->with(is_string($with) ? func_get_args() : $with)
-                        ->first();
+            ->useWritePdo()
+            ->with(is_string($with) ? func_get_args() : $with)
+            ->first();
     }
 
     /**
@@ -1663,9 +1751,9 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
     public function is($model)
     {
         return ! is_null($model) &&
-               $this->getKey() === $model->getKey() &&
-               $this->getTable() === $model->getTable() &&
-               $this->getConnectionName() === $model->getConnectionName();
+            $this->getKey() === $model->getKey() &&
+            $this->getTable() === $model->getTable() &&
+            $this->getConnectionName() === $model->getConnectionName();
     }
 
     /**
@@ -2008,8 +2096,8 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
         }
 
         return $relationship instanceof Model
-                ? $relationship->resolveRouteBindingQuery($relationship, $value, $field)
-                : $relationship->getRelated()->resolveRouteBindingQuery($relationship, $value, $field);
+            ? $relationship->resolveRouteBindingQuery($relationship, $value, $field)
+            : $relationship->getRelated()->resolveRouteBindingQuery($relationship, $value, $field);
     }
 
     /**
@@ -2090,6 +2178,16 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
     }
 
     /**
+     * Determine if accessing missing attributes is disabled.
+     *
+     * @return bool
+     */
+    public static function preventsAccessingMissingAttributes()
+    {
+        return static::$modelsShouldPreventAccessingMissingAttributes;
+    }
+
+    /**
      * Get the broadcast channel route definition that is associated with the given entity.
      *
      * @return string
@@ -2140,7 +2238,11 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
      */
     public function offsetExists($offset): bool
     {
-        return ! is_null($this->getAttribute($offset));
+        try {
+            return ! is_null($this->getAttribute($offset));
+        } catch (MissingAttributeException) {
+            return false;
+        }
     }
 
     /**
@@ -2239,8 +2341,8 @@ abstract class Model implements Arrayable, ArrayAccess, CanBeEscapedWhenCastToSt
     public function __toString()
     {
         return $this->escapeWhenCastingToString
-                    ? e($this->toJson())
-                    : $this->toJson();
+            ? e($this->toJson())
+            : $this->toJson();
     }
 
     /**
